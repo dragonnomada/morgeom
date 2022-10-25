@@ -1,0 +1,36 @@
+type: Scene
+version: v1
+
+title: My first three.js app
+
+style:
+  - |
+    body { margin: 0; }
+
+context:
+  width: "windows.innerWidth"
+  height: "windows.innerHeight"
+
+camera:
+  type: PerspectiveCamera
+  constructor:
+    # fov — Camera frustum vertical field of view
+    fov: 75
+    # aspect — Camera frustum aspect ratio.
+    aspect: "@width / @height"
+    # near — Camera frustum near plane.
+    near: 0.1
+    # far — Camera frustum far plane.
+    far: 1000
+
+renderer:
+  type: WebGLRenderer
+  size:
+    # width : Integer
+    width: "@width"
+    # height : Integer
+    height: "@height"
+    # updateStyle : Boolean
+    updateStyle: TRUE
+
+
