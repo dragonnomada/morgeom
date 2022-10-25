@@ -1,7 +1,7 @@
 type: Scene
 version: v1
 
-title: My first three.js app
+title: Hello scene
 
 style:
   - |
@@ -13,15 +13,14 @@ context:
 
 camera:
   type: PerspectiveCamera
-  constructor:
-    # fov — Camera frustum vertical field of view
-    fov: 75
-    # aspect — Camera frustum aspect ratio.
-    aspect: "@width / @height"
-    # near — Camera frustum near plane.
-    near: 0.1
-    # far — Camera frustum far plane.
-    far: 1000
+  # fov — Camera frustum vertical field of view
+  fov: 75
+  # aspect — Camera frustum aspect ratio.
+  aspect: "@width / @height"
+  # near — Camera frustum near plane.
+  near: 0.1
+  # far — Camera frustum far plane.
+  far: 1000
 
 renderer:
   type: WebGLRenderer
@@ -33,4 +32,5 @@ renderer:
     # updateStyle : Boolean
     updateStyle: TRUE
 
-
+nodes:
+  - model: <cube.yaml>

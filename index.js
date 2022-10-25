@@ -37,7 +37,8 @@ async function loadObjects() {
     const workdir = join(cwd, WORKDIR)
     const files = await readdir(workdir)
     for (let file of files) {
-        const name = file.replace(/\.yaml|\.yml/i, "")
+        file = file.replace(/\.yaml$|\.yml$/i, ".yaml")
+        const name = file.replace(/\.yaml$/i, "")
         const filename = join(workdir, file)
         console.log(`\t- ${file}`)
         objects.push({
@@ -50,14 +51,46 @@ async function loadObjects() {
     }
 }
 
+async function scan(object) {
+    if (!object) return
+    if (typeof object !== "object") return
+    if (object instanceof Array) {
+        for (let sub of object) {
+            scan(sub)
+        }
+        return
+    }
+
+    for (let key in object) {
+        const value = object[key]
+        if (typeof value === "string") {
+            if (/^\<([^\>]+)\>$/.test(value)) {
+                const file = value.match(/^\<([^\>]+)\>$/).slice(1)[0].replace(/\.yaml$|\.yml$/, ".yaml")
+                console.log(`\t\t~ ${key} -> ${file}`)
+                object[key] = objects.filter(_object => _object.file = file)[0]
+            }
+            continue
+        }
+        scan(value)
+    }
+}
+
 async function parseObjects() {
     console.log(`> Parse objects`)
     for (let object of objects) {
         const content = await readFile(object.filename, "utf-8")
         // object.content = Buffer.from(content, "utf-8").toString("base64")
-        object.spec = yaml.parse(content)
-        object.type = object.spec.type
-        console.log(`\t- ${object.file} >>> ${object.spec.type}`)
+        const spec = yaml.parse(content)
+        _.merge(object, spec)
+        console.log(`\t- ${object.file} >>> ${object.type}`)
+    }
+}
+
+async function scanObjects() {
+    console.log(`> Scan objects`)
+    for (let object of objects) {
+        console.log(`\t* ${object.name}`)
+        scan(object)
     }
 }
 
@@ -100,6 +133,7 @@ async function start() {
 
     await loadObjects()
     await parseObjects()
+    await scanObjects()
     await updateConfig()
 
     const server = http.createServer(middleware(
