@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/dragonnomada/morgeom#readme",
   "dependencies": {
+    "lodash": "^4.17.21",
     "yaml": "^2.1.3"
   }
 }
