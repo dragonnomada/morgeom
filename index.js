@@ -6,6 +6,8 @@ const _ = require("lodash")
 const yaml = require("yaml")
 
 const package = require("./package.json")
+const scene = require("./middleware/scene")
+const not_found = require("./middleware/not_found")
 
 const SSL = Boolean(process.env.SSL)
 const HOST = process.env.HOST || "localhost"
@@ -14,13 +16,20 @@ const VERSION = process.env.VERSION || package.version
 
 const WORKDIR = process.env.WORKDIR || "geom"
 
-const objects = []
-
 const config = {
+    ENV: {
+        SSL,
+        HOST,
+        PORT,
+        VERSION,
+        WORKDIR
+    },
     THREE: {
         source: join(process.cwd(), "js", "three.js")
     }
 }
+
+const objects = []
 
 async function loadObjects() {
     console.log(`> Load objects`)
@@ -32,13 +41,6 @@ async function loadObjects() {
         const filename = join(workdir, file)
         console.log(`\t- ${file}`)
         objects.push({
-            env: {
-                SSL,
-                HOST,
-                PORT,
-                VERSION,
-                WORKDIR
-            },
             cwd,
             workdir,
             name,
@@ -72,7 +74,13 @@ async function updateConfig() {
 function middleware(...handlers) {
     return async (request, response) => {
         for (let handler of handlers) {
-            const result = await handler(request, response)
+            const result = await handler({
+                config,
+                objects,
+                request,
+                response,
+                handlers
+            })
             if (result) {
                 const { status, statusText, headers, content } = result
                 response.writeHead(status || 200, statusText || "ok", headers || {
@@ -95,34 +103,8 @@ async function start() {
     await updateConfig()
 
     const server = http.createServer(middleware(
-        request => {
-            for (let object of objects) {
-                console.log(request.url, object.type, object.name)
-                if (object.type === "Scene") {
-                    if (request.url === `/${object.name}`) {
-                        return {
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            content: JSON.stringify(object)
-                        }
-                    } else if (request.url === `/${object.name}/spec`) {
-                        return {
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            content: JSON.stringify(object)
-                        }
-                    }
-                }
-            }
-        },
-        () => ({
-            headers: {
-                "Content-Type": "text/plain"
-            },
-            content: "404 - Not found"
-        })
+        scene,
+        not_found
     ))
 
     server.listen(PORT, HOST, () => {
