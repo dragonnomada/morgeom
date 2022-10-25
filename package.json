@@ -1,0 +1,20 @@
+{
+  "name": "morgeom",
+  "version": "1.0.0",
+  "description": "Un editor de geometrías y simulación para humanos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dragonnomada/morgeom.git"
+  },
+  "keywords": ["webgl", "threejs", "yaml", "nodejs"],
+  "author": "Alan Badillo Salas <dragonnomada123@gmail.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/dragonnomada/morgeom/issues"
+  },
+  "homepage": "https://github.com/dragonnomada/morgeom#readme"
+}
